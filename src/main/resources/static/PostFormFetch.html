@@ -3,8 +3,8 @@
 
 <head>
     <title>Ajax avec l'API fetch et Mustache</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
 
     <!-- On charge le moteur de template mustache https://mustache.github.io/ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.8.1/mustache.min.js"></script>
@@ -21,6 +21,7 @@
             template = document.getElementById("categoriesTemplate").innerHTML;
             boutonAjouter.addEventListener("click", ajouteCategorie);
             chargeCategories();
+
         };
 
         // Transforme les données saisies dans le formulaire en format JSON
@@ -41,6 +42,7 @@
             // On affiche le résultat dans la page
             tableCategories.innerHTML = processedTemplate;
         }
+
         // fonction qui détecte les erreurs dans la réponse reçue
         function handleErrors(response) {
             if (!response.ok) {
@@ -91,39 +93,73 @@
                 })
                 .catch(afficheMessage);
         }
+
+
+        function suprimerCategorie(link) {
+            fetch(link,
+                {
+                    method: 'delete',
+                })
+                .then(response => {
+                    // On vérifie le code de retour de la requête
+                    switch (response.status) {
+                        case 200: // Created: ça s'est bien passé
+                            // On recharge la liste des catégories
+                            chargeCategories();
+                            break;
+                        case 409: // Conflict: doublon dans les noms
+                            afficheMessage("Impossible de supprimer une categorie car elle est référencée par des produits");
+                            break;
+                    }
+                })
+                .catch(afficheMessage);
+        }
+
+
+
     </script>
 </head>
 
 <body>
-    <!-- Le formulaire de saisie -->
-    <form id="formulaire">
-        <label for="libelle">Libellé</label>
-        <input name="libelle" placeholder="Libellé de la catégorie"><br>
-        <label for="description">Description</label>
-        <textarea name="description" placeholder="Description de la catégorie"></textarea><br>
-        <button type="button" id="boutonAjouter">Ajouter</button>
-    </form>
-    <!-- Les messages d'erreur s'affichent ici -->
-    <div id="message"></div>
-    <!-- La table des catégories -->
-    <div id="tableCategories"></div>
-    <hr>
+<!-- Le formulaire de saisie -->
+<form id="formulaire">
+    <label for="libelle">Libelle</label>
+    <input id="libelle" name="libelle" placeholder="libelle de la catégorie"><br>
+    <label for="description">Description</label>
+    <textarea id="description" name="description" placeholder="Description de la catégorie"></textarea><br>
+    <button type="button" id="boutonAjouter">Ajouter</button>
+</form>
+<!-- Les messages d'erreur s'affichent ici -->
+<div id="message"></div>
+<!-- La table des catégories -->
+<div id="tableCategories"></div>
+<hr>
 
-    <a href="/">Retour au menu</a>
+<a href="/">Retour au menu</a>
 
-    <!-- Le template Mustache qui sert à formatter la liste des catégories -->
-    <script id="categoriesTemplate" type="text/template">
-        <h2>Liste des catégories ({{_embedded.categories.length}} / {{page.totalElements}})</h2>
-        <TABLE>
+<!-- Le template Mustache qui sert à formatter la liste des catégories -->
+<script id="categoriesTemplate" type="text/template">
+    <h2>Liste des catégories ({{_embedded.categories.length}} / {{page.totalElements}})</h2>
+    <TABLE>
         {{! Un commentaire Mustache }}
-        <TR><TH>Code</TH><TH>Libelle</TH><TH>Description</TH></TR>
+        <TR>
+            <TH>Code</TH>
+            <TH>Libelle</TH>
+            <TH>Description</TH>
+            <TH>Action</TH>
+        </TR>
         {{! Pour chaque categorie dans le tableau 'categories' }}
         {{#_embedded.categories}}
         {{! Une ligne dans la table }}
-        <TR><TD>{{code}}</TD><TD>{{libelle}}</TD><TD>{{description}}</TD></TR>
+        <TR>
+            <TD>{{code}}</TD>
+            <TD>{{libelle}}</TD>
+            <TD>{{description}}</TD>
+            <TD><button type="button" id="supprimerButton" value={{code}} onclick="suprimerCategorie('{{_links.self.href}}')">Supprimer</button></TD>
+        </TR>
         {{/_embedded.categories}}
-        </TABLE>
-    </script>
+    </TABLE>
+</script>
 </body>
 
 </html>
