@@ -5,7 +5,7 @@
     <title>Ajax avec l'API fetch et Mustache</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
-
+    <audio id="audio" src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"></audio>
     <!-- On charge le moteur de template mustache https://mustache.github.io/ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.8.1/mustache.min.js"></script>
 
@@ -23,6 +23,12 @@
             chargeCategories();
 
         };
+
+        function checkResponses() {
+            var audio = document.getElementById("audio");
+            audio.volume = 1;
+            audio.play();
+        }
 
         // Transforme les données saisies dans le formulaire en format JSON
         function serializeFormToJSON(form) {
@@ -101,6 +107,7 @@
                     method: 'delete',
                 })
                 .then(response => {
+                    checkResponses();
                     // On vérifie le code de retour de la requête
                     switch (response.status) {
                         case 200: // Created: ça s'est bien passé
